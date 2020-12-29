@@ -177,10 +177,10 @@ server {
     }
 }
 EOF
-else
-  # 转换php-fpm
-  sed -i "s~\$PHP_FPM_SOCK~$PHP_FPM_SOCK~g" "$NGINX_DEFAULT_CONF"
 fi
+
+  # 转换php-fpm
+  find "${NGINX_CONF_D}" -type f -exec sed -i "s~\$PHP_FPM_SOCK~$PHP_FPM_SOCK~g" {} +
 
   INFO "$NGINX_DEFAULT_CONF"
   cat "$NGINX_DEFAULT_CONF"

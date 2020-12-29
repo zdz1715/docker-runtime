@@ -90,11 +90,18 @@ CMD ["cron", "laravel-queue", "$otherCommand", "..."]
 
 >### 自定义配置文件
 #### nginx
-首先在项目中创建`.nginx-config`文件，然后在`Dockerfile`里加上下列
+- 覆盖默认nginx配置文件
+
+  首先在项目中创建`.nginx-config`文件，然后在`Dockerfile`里加上下列
 ```dockerfile
 COPY .nginx-config "$NGINX_DEFAULT_CONF"
 ```
-php-fpm进程请使用 `$PHP_FPM_SOCK`，如：
+- 添加新的配置文件
+`new_file.conf`替换成你的配置文件
+```dockerfile
+COPY new_file.conf "$NGINX_CONF_D"
+```
+php-fpm进程请使用 `$PHP_FPM_SOCK`，`entrypoint.sh`会对`$NGINX_CONF_D`下的所有文件进行替换，如：
 ```shell script
 location ~ \.php$ {
     include fastcgi.conf;
@@ -172,3 +179,5 @@ RUN apt-get update; \
     ; \
     rm -rf /var/lib/apt/lists/*;
 ```
+>### 日志管理
+nginx、php日志都配置在`/dev/stdout`下

@@ -1,10 +1,6 @@
 {
   "scripts": {
-    "docker-build": "docker build -f Dockerfile -t zdzserver/docker-runtime:php7.4-fpm-ubuntu .",
-    "docker-compose-down": "docker-compose down",
-    "docker-compose-up": "docker-compose up -d",
-    "docker-exec": "docker exec -it runtime-php7.4-fpm-ubuntu /bin/bash",
-    "docker-logs": "docker logs -f -t --tail=100 runtime-php7.4-fpm-ubuntu",
-    "docker-push": "docker push zdzserver/docker-runtime:php7.4-fpm-ubuntu"
+    "docker-build": "docker build -f Dockerfile -t zdzserver/docker-runtime:ubuntu .",
+    "docker-push": "docker push zdzserver/docker-runtime:ubuntu"
   }
 }

@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "docker-build": "docker build -f Dockerfile -t zdzserver/docker-runtime:php7.4-fpm-ubuntu .",
+    "docker-compose-down": "docker-compose down",
+    "docker-compose-up": "docker-compose up -d",
+    "docker-push": "docker push zdzserver/docker-runtime:php7.4-fpm-ubuntu"
+  }
+}

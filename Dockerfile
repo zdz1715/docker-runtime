@@ -11,4 +11,5 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
         net-tools \
         vim \
         curl \
+        dos2unix \
     ;

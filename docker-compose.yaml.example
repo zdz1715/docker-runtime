@@ -1,5 +1,5 @@
 # 只作为本地开发多项目调试使用，不建议使用生产环境，生产环境请使用Dockerfile.example打包的项目单独镜像
-version: "2"
+version: "3"
 services:
   runtime-php7.4-fpm-ubuntu:
     image: zdzserver/docker-runtime:php7.4-fpm-ubuntu
@@ -7,5 +7,6 @@ services:
     volumes:
       - $WEB_ROOT:/var/www
       - $NGINX_CONF_D:/etc/nginx/conf.d
-    # 使用host网络模式，配置多个项目时，不用每个nginx配置端口添加映射
-    network_mode: host
+    ports:
+    # 添加你映射的端口
+    

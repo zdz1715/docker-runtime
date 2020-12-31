@@ -167,7 +167,7 @@ Usage: cron-log [OPTIONS] COMMAND [ARG ...]
       -h, --help                    帮助
       -u, --user string             执行用户
 ```
->### php安装额外扩展
+>### 安装额外扩展
 项目`Dockerfile`里添加如下
 ```dockerfile
 FROM zdzserver/docker-runtime:php7.4-fpm-ubuntu

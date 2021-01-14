@@ -27,7 +27,7 @@ apt remove vim
 | PHP_CLI_INI_D | php ini配置文件目录 | `/etc/php/7.4/cli/conf.d` |
 | PHP_FPM_CONF_D | php-fpm配置文件目录 | `/etc/php/7.4/fpm/pool.d` |
 | PHP_FPM_POOL_CONF | php-fpm项目配置文件 | `/etc/php/7.4/fpm/pool.d/www.conf` |
-| PHP_FPM_SOCK | php-fpm进程sock文件 | `unix:/run/php/php7.4-fpm.sock` |
+| PHP_FPM_SOCK | php-fpm进程sock文件 | `unix:/usr/run/php-fpm.sock` |
 
 #### nginx
 | 变量名称 | 描述 | 默认值 |

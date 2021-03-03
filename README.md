@@ -1,12 +1,12 @@
 # php运行环境镜像
 基于ubuntu20.04、php7.4、nginx1.18、supervisor4.1
 
->### 使用方式
-#### 构建
-复制`Dockerfile.example`到项目中，重命令为`Dockerfile`，然后`docker build`
+## 一、使用方式
+### 1. 构建
+复制`Dockerfile.example`到项目中，重命名为`Dockerfile`，然后`docker build`
 
 **ps：下面都是以你构建好的项目容器为视角说明**
-#### 进入容器
+### 2. 进入容器
 `/bin/bash`
 #### 包管理器(已使用阿里云镜像源)
 注意：安装别的包之前需要先`apt update`
@@ -15,9 +15,13 @@ apt search vim
 apt install vim
 apt remove vim
 ``` 
+### 3. 使用`docker-compose`管理多项目
+1) 复制`docker-compose.yaml.example`重命名为`docker-compose.yaml`
+2) 复制`.env.example`重命名为`.env`,并且配置你的网站根目录和nginx配置目录
+3) 在`docker-compose.yaml`中添加你要映射的端口
 
->### 内置环境变量
-#### php
+## 三、环境变量
+### php
 | 变量名称 | 描述 | 默认值 |
 | :---- | :---- | :---- |
 | PHP_VERSION | php版本 | `php7.4` |
@@ -27,9 +31,9 @@ apt remove vim
 | PHP_CLI_INI_D | php ini配置文件目录 | `/etc/php/7.4/cli/conf.d` |
 | PHP_FPM_CONF_D | php-fpm配置文件目录 | `/etc/php/7.4/fpm/pool.d` |
 | PHP_FPM_POOL_CONF | php-fpm项目配置文件 | `/etc/php/7.4/fpm/pool.d/www.conf` |
-| PHP_FPM_SOCK | php-fpm进程sock文件 | `unix:/usr/run/php-fpm.sock` |
+| PHP_FPM_SOCK | php-fpm进程sock文件 | `unix:/run/php/php7.4-fpm.sock` |
 
-#### nginx
+### nginx
 | 变量名称 | 描述 | 默认值 |
 | :---- | :---- | :---- |
 | NGINX_CONF_D | nginx的conf.d目录 | `/etc/nginx/conf.d` |
@@ -38,22 +42,22 @@ apt remove vim
 | NGINX_HEADER_ALLOW_ORIGIN | `Access-Control-Allow-Origin`的值，推荐`*` | - |
 | NGINX_HEADER_ALLOW_ORIGIN | `Access-Control-Allow-Headers`的值，推荐`*,...`，低版本浏览器可能`*`不生效，所以还需明确列出 | - |
 
-#### supervisor
+### supervisor
 | 变量名称 | 描述 | 默认值 |
 | :---- | :---- | :---- |
 | SUPERVISOR_CONF_DIR | 配置目录 | `/etc/supervisor/conf.d` |
 | SUPERVISOR_LOG_DIR | 日志目录 | `/var/log/supervisor` |
 
-#### cron
+### cron
 | 变量名称 | 描述 | 默认值 |
 | :---- | :---- | :---- |
 | CRON_D | 定时任务配置目录 | `/etc/cron.d` |
 | CRON_LARAVEL_SCHEDULE | 添加laravel调度定时任务 | `true` |
 
-#### 额外变量
+### 额外变量
 | 变量名称 | 描述 | 默认值 |
 | :---- | :---- | :---- |
-| UPLOAD_LIMIT | 上传文件大小，会同时设置php-fpm的upload_max_filesize、post_max_size和nginx的client_max_body_size | - |
+| UPLOAD_LIMIT | 上传文件大小，会同时设置php-fpm的upload_max_filesize、post_max_size和nginx的client_max_body_size | 200M |
 | MIN_SPARE_SERVERS | 对应pm.max_spare_servers | 16 |
 | MAX_SPARE_SERVERS | 对应pm.max_spare_servers | 16 |
 
@@ -63,7 +67,13 @@ apt remove vim
 - supervisor：主程序，默认启动，用于管理和运行`php-fpm`,`nginx`,`cron`
 - cron：默认未启动，已配置好laravel任务调度的运行
 
-#### 管理软件
+## 四、管理软件
+### 镜像内包含软件
+- nginx：80 端口http，指向/var/www/public
+- php7.4-fpm，包含laravel所需的基本扩展,若需要别的扩展请在项目Dockerfile里单独安装
+- supervisor：主程序，默认启动，用于管理和运行`php-fpm`,`nginx`,`cron`
+- cron：默认未启动，已配置好laravel任务调度的运行
+### 使用supervisor管理上面软件
 ```bash
 # 状态
 supervisorctl status
@@ -78,7 +88,7 @@ supervisorctl stop php-fpm
 supervisorctl reload
 ```
 
->### 内置命令
+## 五、内置命令
 ```dockerfile
 ## 默认以root用户运行，若想以www-data运行，则写成这样：[ "su - www-data -s /bin/bash -c '$otherCommand'" ]
 CMD ["cron", "laravel-queue", "$otherCommand", "..."]
@@ -88,8 +98,8 @@ CMD ["cron", "laravel-queue", "$otherCommand", "..."]
 - `laravel-queue`: 使用`supervisor`执行`php /var/www/artisan queue:work --sleep=3 --tries=3`,默认开启8个进程
 - `laravel-socket`: 使用`supervisor`执行`php /var/www/artisan socket start`,默认开启1个进程
 
->### 自定义配置文件
-#### nginx
+## 六、自定义配置文件
+### nginx
 - 覆盖默认nginx配置文件
 
   首先在项目中创建`.nginx-config`文件，然后在`Dockerfile`里加上下列
@@ -97,9 +107,8 @@ CMD ["cron", "laravel-queue", "$otherCommand", "..."]
 COPY .nginx-config "$NGINX_DEFAULT_CONF"
 ```
 - 添加新的配置文件
-`new_file.conf`替换成你的配置文件
 ```dockerfile
-COPY new_file.conf "$NGINX_CONF_D"
+COPY .nginx-config "$NGINX_CONF_D"
 ```
 php-fpm进程请使用 `$PHP_FPM_SOCK`，`entrypoint.sh`会对`$NGINX_CONF_D`下的所有文件进行替换，如：
 ```shell script
@@ -108,7 +117,7 @@ location ~ \.php$ {
     fastcgi_pass $PHP_FPM_SOCK;
 }
 ```
-#### supervisor
+### supervisor
 文件后缀`.ini`
 ```dockerfile
 COPY $your_task "$SUPERVISOR_CONF_DIR"
@@ -124,17 +133,17 @@ numprocs=1
 redirect_stderr=true
 stdout_logfile=/var/log/supervisor/cron.log
 ```
-#### php
+### php
 文件后缀`.ini`
 ```dockerfile
 COPY $your_ini "$PHP_INI_D"
 ```
-#### php-fpm
+### php-fpm
 文件后缀`.conf`
 ```dockerfile
 COPY $your_conf "$PHP_FPM_CONF_D"
 ```
-#### cron
+### cron
 无文件后缀
 ```dockerfile
 COPY $your_file "$CRON_D"
@@ -157,8 +166,8 @@ Could not open input file: /var/www/artisan
 ...
 ```
 **注意**：
-- 执行程序需要使用绝对路径，比如：`/usr/local/bin/cron-log` 代替 `cron-cli`
-##### cron-log
+- 执行程序需要使用绝对路径，比如：`/usr/local/bin/cron-log` 代替 `cron-log`
+#### cron-log
 使用方式：
 ```text
 Usage: cron-log [OPTIONS] COMMAND [ARG ...]
@@ -167,10 +176,10 @@ Usage: cron-log [OPTIONS] COMMAND [ARG ...]
       -h, --help                    帮助
       -u, --user string             执行用户
 ```
->### 安装额外扩展
+## 七、安装额外扩展
 项目`Dockerfile`里添加如下
 ```dockerfile
-FROM zdzserver/docker-runtime:php7.4-fpm-ubuntu
+FROM registry.cn-hangzhou.aliyuncs.com/gupo-base-image/laravel-runtime:ubuntu
 
 ## 增加pgsql扩展
 RUN apt-get update; \
@@ -179,5 +188,12 @@ RUN apt-get update; \
     ; \
     rm -rf /var/lib/apt/lists/*;
 ```
->### 日志管理
-nginx、php日志都配置在`/dev/stdout`下
+## 八、日志管理
+| 应用 | 输出方向 | 说明 | 
+| ---- | ---- | ---- |
+| nginx |  `/dev/stdout` | - |
+| php-fpm | `/dev/stdout` | - |
+| cron | `/var/log/supervisor/cron.log` | 需使用`cron-log` |
+| supervisor | `/var/log/supervisor/supervisord.log` | - |
+| laravel-queue | `/var/log/supervisor/laravel-queue.log` | - |
+| laravel-socket | `/var/log/supervisor/laravel-socket.log` | - |

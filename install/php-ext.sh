@@ -137,6 +137,8 @@ if [ "${PHP_EXTENSIONS}" != "" ]; then
 fi
 
 
+echo "---------- Check PHP Install ---------"
+. check-php-install.sh
 
 
 

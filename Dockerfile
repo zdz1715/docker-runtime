@@ -14,6 +14,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
         supervisor \
         cron \
         curl \
+        unzip \
     ; \
     curl -k -o /usr/bin/composer https://mirrors.aliyun.com/composer/composer.phar; \
     chmod +x /usr/bin/composer; \
@@ -51,7 +52,8 @@ ENV SUPERVISOR_LOG_DIR='/var/log/supervisor'
 ENV CRON_D='/etc/cron.d'
 ENV CRON_LARAVEL_SCHEDULE=true
 
-
+# 默认上传大小
+ENV UPLOAD_LIMIT="200M"
 
 
 ## 拷贝配置文件

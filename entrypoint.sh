@@ -117,11 +117,7 @@ fi
 
 done
 
-# 只执行命令行
-if [ "$EXEC_CMD" = 1 ]; then
-  exec "/bin/bash"
-  exit 0
-fi
+
 
 # 修改nginx的权限
 chown -R www-data:www-data /var/lib/nginx
@@ -179,14 +175,20 @@ server {
 EOF
 fi
 
-  # 转换php-fpm
-  find "${NGINX_CONF_D}" -type f -exec sed -i "s~\$PHP_FPM_SOCK~$PHP_FPM_SOCK~g" {} +
+# 转换php-fpm
+find "${NGINX_CONF_D}" -type f -exec sed -i "s~\$PHP_FPM_SOCK~$PHP_FPM_SOCK~g" {} +
 
-  INFO "$NGINX_DEFAULT_CONF"
-  cat "$NGINX_DEFAULT_CONF"
+# 只执行命令行
+if [ "$EXEC_CMD" = 1 ]; then
+  exec "/bin/bash"
+  exit 0
+fi
+
+# 打印nginx配置文件
+INFO "$NGINX_DEFAULT_CONF"
+cat "$NGINX_DEFAULT_CONF"
 
 # 兼容以前的ini文件
 echo "files = /etc/supervisor/conf.d/*.ini" >> /etc/supervisor/supervisord.conf
-
 # 使用守护程序运行程序 /etc/supervisor.d/init.ini
 supervisord -n -c /etc/supervisor/supervisord.conf
